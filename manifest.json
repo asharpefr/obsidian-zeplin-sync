@@ -1,0 +1,11 @@
+{
+  "id": "zeplin-sync",
+  "name": "Zeplin Sync",
+  "version": "0.1.0",
+  "minAppVersion": "0.15.0",
+  "description": "Sync Zeplin design projects, components, and screens to Obsidian as markdown files with visual previews",
+  "author": "asharpe",
+  "authorUrl": "https://github.com/asharpe/obsidian-zeplin-sync",
+  "fundingUrl": "https://github.com/sponsors/asharpe",
+  "isDesktopOnly": false
+}
