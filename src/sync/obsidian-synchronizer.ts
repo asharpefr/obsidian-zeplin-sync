@@ -14,6 +14,7 @@ interface ObsidianSettings {
   templateFormat: 'detailed' | 'minimal';
   excludePatterns: string;
   createProjectFolder: boolean;
+  organizeBySections: boolean;
 }
 
 export class ObsidianSynchronizer {
@@ -112,6 +113,10 @@ export class ObsidianSynchronizer {
   private async syncComponents(project: ZeplinProject): Promise<void> {
     logger.info('Syncing components...');
 
+    // Fetch sections first to map IDs to names
+    const sections = await this.zeplinClient.getSections(project.id);
+    const sectionMap = new Map(sections.map(s => [s.id, s.name || 'Unknown']));
+
     const components = await this.zeplinClient.getComponents(project.id);
     const basePath = this.settings.createProjectFolder
       ? `${this.settings.defaultFolder}/${this.sanitizePath(project.name)}/Components`
@@ -131,8 +136,21 @@ export class ObsidianSynchronizer {
 
     for (const component of filteredComponents) {
       const fullComponent = await this.zeplinClient.getComponent(project.id, component.id);
+
+      // Populate section name if available
+      if (fullComponent.section?.id) {
+        fullComponent.section.name = sectionMap.get(fullComponent.section.id);
+      }
+
+      // Determine file path based on organizeBySections setting
       const fileName = `${this.sanitizePath(fullComponent.name)}.md`;
-      const filePath = `${basePath}/${fileName}`;
+      let filePath: string;
+      if (this.settings.organizeBySections && fullComponent.section?.name) {
+        const sectionFolder = this.sanitizePath(fullComponent.section.name);
+        filePath = `${basePath}/${sectionFolder}/${fileName}`;
+      } else {
+        filePath = `${basePath}/${fileName}`;
+      }
 
       const content = await this.buildComponentMarkdown(project, fullComponent);
       await this.writeFile(filePath, content);
@@ -150,6 +168,10 @@ export class ObsidianSynchronizer {
    */
   private async syncScreens(project: ZeplinProject): Promise<void> {
     logger.info('Syncing screens...');
+
+    // Fetch sections first to map IDs to names
+    const sections = await this.zeplinClient.getSections(project.id);
+    const sectionMap = new Map(sections.map(s => [s.id, s.name || 'Unknown']));
 
     const screens = await this.zeplinClient.getScreens(project.id);
     const basePath = this.settings.createProjectFolder
@@ -170,8 +192,21 @@ export class ObsidianSynchronizer {
 
     for (const screen of filteredScreens) {
       const fullScreen = await this.zeplinClient.getScreen(project.id, screen.id);
+
+      // Populate section name if available
+      if (fullScreen.section?.id) {
+        fullScreen.section.name = sectionMap.get(fullScreen.section.id);
+      }
+
+      // Determine file path based on organizeBySections setting
       const fileName = `${this.sanitizePath(fullScreen.name)}.md`;
-      const filePath = `${basePath}/${fileName}`;
+      let filePath: string;
+      if (this.settings.organizeBySections && fullScreen.section?.name) {
+        const sectionFolder = this.sanitizePath(fullScreen.section.name);
+        filePath = `${basePath}/${sectionFolder}/${fileName}`;
+      } else {
+        filePath = `${basePath}/${fileName}`;
+      }
 
       const content = await this.buildScreenMarkdown(project, fullScreen);
       await this.writeFile(filePath, content);
@@ -353,6 +388,15 @@ export class ObsidianSynchronizer {
       await this.app.vault.modify(file, content);
       logger.info(`Updated file: ${path}`);
     } else {
+      // Ensure parent folder exists
+      const parentPath = path.substring(0, path.lastIndexOf('/'));
+      if (parentPath) {
+        const parentFolder = this.app.vault.getAbstractFileByPath(parentPath);
+        if (!parentFolder) {
+          await this.app.vault.createFolder(parentPath);
+        }
+      }
+
       await this.app.vault.create(path, content);
       logger.info(`Created file: ${path}`);
     }

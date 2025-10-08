@@ -10,6 +10,7 @@ import type {
   ZeplinScreen,
   ZeplinColor,
   ZeplinTextStyle,
+  ZeplinSection,
   ZeplinApiError,
 } from '../types/zeplin';
 import { logger } from '../utils/logger';
@@ -102,7 +103,12 @@ export class ZeplinClient {
     try {
       logger.info(`Fetching components for project: ${projectId}`);
       const response = await this.client.get<ZeplinComponent[]>(
-        `/projects/${projectId}/components`
+        `/projects/${projectId}/components`,
+        {
+          params: {
+            include_linked_project: true
+          }
+        }
       );
       logger.info(`Found ${response.data.length} components`);
       return response.data;
@@ -135,7 +141,12 @@ export class ZeplinClient {
     try {
       logger.info(`Fetching screens for project: ${projectId}`);
       const response = await this.client.get<ZeplinScreen[]>(
-        `/projects/${projectId}/screens`
+        `/projects/${projectId}/screens`,
+        {
+          params: {
+            include_linked_project: true
+          }
+        }
       );
       logger.info(`Found ${response.data.length} screens`);
       return response.data;
@@ -191,6 +202,23 @@ export class ZeplinClient {
       return response.data;
     } catch (error) {
       logger.error(`Failed to fetch text styles for ${projectId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all sections for a project
+   */
+  async getSections(projectId: string): Promise<ZeplinSection[]> {
+    try {
+      logger.info(`Fetching sections for project: ${projectId}`);
+      const response = await this.client.get<ZeplinSection[]>(
+        `/projects/${projectId}/screen_sections`
+      );
+      logger.info(`Found ${response.data.length} sections`);
+      return response.data;
+    } catch (error) {
+      logger.error(`Failed to fetch sections for ${projectId}:`, error);
       throw error;
     }
   }

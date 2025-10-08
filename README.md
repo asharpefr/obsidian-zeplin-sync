@@ -53,7 +53,7 @@ Sync your Zeplin design projects, components, and screens directly into Obsidian
 
 ### Folder Structure
 
-**With "Create Project Folder" enabled (default: off):**
+**With "Organize by Sections" enabled (default: on) and "Create Project Folder" enabled:**
 
 ```
 Zeplin/
@@ -61,18 +61,22 @@ Zeplin/
     ├── README.md           (project overview)
     ├── Components.md       (index of components)
     ├── Components/
-    │   ├── Button.md
-    │   ├── Card.md
-    │   └── ...
+    │   ├── Section A/
+    │   │   ├── Button.md
+    │   │   └── Card.md
+    │   └── Section B/
+    │       └── Input.md
     ├── Screens.md          (index of screens)
     ├── Screens/
-    │   ├── Home.md
-    │   ├── Login.md
-    │   └── ...
+    │   ├── Onboarding/
+    │   │   ├── Welcome.md
+    │   │   └── Login.md
+    │   └── Main/
+    │       └── Home.md
     └── Design Tokens.md    (colors & typography)
 ```
 
-**With "Create Project Folder" disabled:**
+**With "Organize by Sections" disabled and "Create Project Folder" disabled:**
 
 ```
 Zeplin/
@@ -122,6 +126,9 @@ Zeplin/
 - **Create Project Folder** - Create a folder with the project name inside the default folder (default: off)
   - Enabled: syncs to `Zeplin/ProjectName/`
   - Disabled: syncs directly to `Zeplin/`
+- **Organize by Sections** - Create folders based on Zeplin sections (default: on)
+  - Enabled: organizes screens and components into section subfolders
+  - Disabled: all screens and components in flat structure
 - **Exclude Patterns** - Glob patterns to skip screens and components (one per line):
   - Example: `*-old` - excludes items ending with "-old"
   - Example: `test-*` - excludes items starting with "test-"

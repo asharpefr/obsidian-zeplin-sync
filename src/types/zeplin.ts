@@ -62,7 +62,7 @@ export interface ZeplinAsset {
 
 export interface ZeplinSection {
   id: string;
-  name: string;
+  name?: string;
   description?: string;
 }
 

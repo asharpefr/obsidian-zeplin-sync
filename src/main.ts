@@ -15,6 +15,7 @@ interface ZeplinSyncSettings {
   templateFormat: 'detailed' | 'minimal';
   excludePatterns: string;
   createProjectFolder: boolean;
+  organizeBySections: boolean;
 }
 
 const DEFAULT_SETTINGS: ZeplinSyncSettings = {
@@ -24,6 +25,7 @@ const DEFAULT_SETTINGS: ZeplinSyncSettings = {
   templateFormat: 'detailed',
   excludePatterns: '',
   createProjectFolder: false,
+  organizeBySections: true,
 };
 
 export default class ZeplinSyncPlugin extends Plugin {
@@ -297,6 +299,16 @@ class ZeplinSyncSettingTab extends PluginSettingTab {
         .setValue(this.plugin.settings.createProjectFolder)
         .onChange(async (value) => {
           this.plugin.settings.createProjectFolder = value;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName('Organize by Sections')
+      .setDesc('Create folders based on Zeplin sections')
+      .addToggle(toggle => toggle
+        .setValue(this.plugin.settings.organizeBySections)
+        .onChange(async (value) => {
+          this.plugin.settings.organizeBySections = value;
           await this.plugin.saveSettings();
         }));
 
