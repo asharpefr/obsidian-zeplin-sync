@@ -14,6 +14,7 @@ interface ZeplinSyncSettings {
   imageStorage: 'inline' | 'assets';
   templateFormat: 'detailed' | 'minimal';
   excludePatterns: string;
+  createProjectFolder: boolean;
 }
 
 const DEFAULT_SETTINGS: ZeplinSyncSettings = {
@@ -22,6 +23,7 @@ const DEFAULT_SETTINGS: ZeplinSyncSettings = {
   imageStorage: 'assets',
   templateFormat: 'detailed',
   excludePatterns: '',
+  createProjectFolder: false,
 };
 
 export default class ZeplinSyncPlugin extends Plugin {
@@ -285,6 +287,16 @@ class ZeplinSyncSettingTab extends PluginSettingTab {
         .setValue(this.plugin.settings.templateFormat)
         .onChange(async (value: 'detailed' | 'minimal') => {
           this.plugin.settings.templateFormat = value;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName('Create Project Folder')
+      .setDesc('Create a folder with the project name inside the default folder')
+      .addToggle(toggle => toggle
+        .setValue(this.plugin.settings.createProjectFolder)
+        .onChange(async (value) => {
+          this.plugin.settings.createProjectFolder = value;
           await this.plugin.saveSettings();
         }));
 

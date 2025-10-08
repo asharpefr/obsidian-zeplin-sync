@@ -53,6 +53,8 @@ Sync your Zeplin design projects, components, and screens directly into Obsidian
 
 ### Folder Structure
 
+**With "Create Project Folder" enabled (default: off):**
+
 ```
 Zeplin/
 └── ProjectName/
@@ -68,6 +70,24 @@ Zeplin/
     │   ├── Login.md
     │   └── ...
     └── Design Tokens.md    (colors & typography)
+```
+
+**With "Create Project Folder" disabled:**
+
+```
+Zeplin/
+├── README.md           (project overview)
+├── Components.md       (index of components)
+├── Components/
+│   ├── Button.md
+│   ├── Card.md
+│   └── ...
+├── Screens.md          (index of screens)
+├── Screens/
+│   ├── Home.md
+│   ├── Login.md
+│   └── ...
+└── Design Tokens.md    (colors & typography)
 ```
 
 ### What Gets Synced
@@ -99,6 +119,9 @@ Zeplin/
 - **Template Format** - Detail level:
   - `detailed` - Full information
   - `minimal` - Compact view
+- **Create Project Folder** - Create a folder with the project name inside the default folder (default: off)
+  - Enabled: syncs to `Zeplin/ProjectName/`
+  - Disabled: syncs directly to `Zeplin/`
 - **Exclude Patterns** - Glob patterns to skip screens and components (one per line):
   - Example: `*-old` - excludes items ending with "-old"
   - Example: `test-*` - excludes items starting with "test-"

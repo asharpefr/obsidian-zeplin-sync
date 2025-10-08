@@ -13,6 +13,7 @@ interface ObsidianSettings {
   imageStorage: 'inline' | 'assets';
   templateFormat: 'detailed' | 'minimal';
   excludePatterns: string;
+  createProjectFolder: boolean;
 }
 
 export class ObsidianSynchronizer {
@@ -71,7 +72,9 @@ export class ObsidianSynchronizer {
    * Create the base project folder structure
    */
   private async createProjectStructure(project: ZeplinProject): Promise<void> {
-    const basePath = `${this.settings.defaultFolder}/${this.sanitizePath(project.name)}`;
+    const basePath = this.settings.createProjectFolder
+      ? `${this.settings.defaultFolder}/${this.sanitizePath(project.name)}`
+      : this.settings.defaultFolder;
 
     await this.ensureFolder(basePath);
     await this.ensureFolder(`${basePath}/Components`);
@@ -110,7 +113,9 @@ export class ObsidianSynchronizer {
     logger.info('Syncing components...');
 
     const components = await this.zeplinClient.getComponents(project.id);
-    const basePath = `${this.settings.defaultFolder}/${this.sanitizePath(project.name)}/Components`;
+    const basePath = this.settings.createProjectFolder
+      ? `${this.settings.defaultFolder}/${this.sanitizePath(project.name)}/Components`
+      : `${this.settings.defaultFolder}/Components`;
 
     // Filter components
     const filteredComponents = components.filter(c => !this.shouldExclude(c.name));
@@ -147,7 +152,9 @@ export class ObsidianSynchronizer {
     logger.info('Syncing screens...');
 
     const screens = await this.zeplinClient.getScreens(project.id);
-    const basePath = `${this.settings.defaultFolder}/${this.sanitizePath(project.name)}/Screens`;
+    const basePath = this.settings.createProjectFolder
+      ? `${this.settings.defaultFolder}/${this.sanitizePath(project.name)}/Screens`
+      : `${this.settings.defaultFolder}/Screens`;
 
     // Filter screens
     const filteredScreens = screens.filter(s => !this.shouldExclude(s.name));
@@ -183,7 +190,9 @@ export class ObsidianSynchronizer {
   private async syncDesignTokens(project: ZeplinProject): Promise<void> {
     logger.info('Syncing design tokens...');
 
-    const basePath = `${this.settings.defaultFolder}/${this.sanitizePath(project.name)}/Design Tokens`;
+    const basePath = this.settings.createProjectFolder
+      ? `${this.settings.defaultFolder}/${this.sanitizePath(project.name)}/Design Tokens`
+      : `${this.settings.defaultFolder}/Design Tokens`;
 
     let content = `# Design Tokens\n\n`;
 
