@@ -3,4 +3,3 @@
  */
 
 export * from './zeplin';
-export * from './logseq';

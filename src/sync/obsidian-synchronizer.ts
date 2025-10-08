@@ -5,7 +5,6 @@
 
 import { App, TFile, TFolder, Notice } from 'obsidian';
 import { ZeplinClient } from '../zeplin/client';
-import { LogseqAssetsManager } from '../logseq/assets';
 import { logger } from '../utils/logger';
 import type { ZeplinProject, ZeplinComponent, ZeplinScreen } from '../types/zeplin';
 
@@ -19,7 +18,6 @@ interface ObsidianSettings {
 export class ObsidianSynchronizer {
   private app: App;
   private zeplinClient: ZeplinClient;
-  private assetsManager: LogseqAssetsManager;
   private settings: ObsidianSettings;
   private projectName: string = '';
   private excludePatterns: string[] = [];
@@ -27,7 +25,6 @@ export class ObsidianSynchronizer {
   constructor(app: App, zeplinClient: ZeplinClient, settings: ObsidianSettings) {
     this.app = app;
     this.zeplinClient = zeplinClient;
-    this.assetsManager = new LogseqAssetsManager();
     this.settings = settings;
     this.excludePatterns = settings.excludePatterns
       .split('\n')
