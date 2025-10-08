@@ -23,7 +23,7 @@ Sync your Zeplin design projects, components, and screens directly into Obsidian
 4. Reload Obsidian
 5. Enable the plugin in Settings → Community Plugins
 
-### From Release
+### From Release (in progress)
 
 1. Go to Settings → Community Plugins → Browse
 2. Search for "Zeplin Sync"
