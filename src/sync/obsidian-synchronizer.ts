@@ -13,6 +13,7 @@ interface ObsidianSettings {
   defaultFolder: string;
   imageStorage: 'inline' | 'assets';
   templateFormat: 'detailed' | 'minimal';
+  excludePatterns: string;
 }
 
 export class ObsidianSynchronizer {
@@ -21,12 +22,17 @@ export class ObsidianSynchronizer {
   private assetsManager: LogseqAssetsManager;
   private settings: ObsidianSettings;
   private projectName: string = '';
+  private excludePatterns: string[] = [];
 
   constructor(app: App, zeplinClient: ZeplinClient, settings: ObsidianSettings) {
     this.app = app;
     this.zeplinClient = zeplinClient;
     this.assetsManager = new LogseqAssetsManager();
     this.settings = settings;
+    this.excludePatterns = settings.excludePatterns
+      .split('\n')
+      .map(p => p.trim())
+      .filter(p => p.length > 0);
   }
 
   /**
@@ -109,11 +115,19 @@ export class ObsidianSynchronizer {
     const components = await this.zeplinClient.getComponents(project.id);
     const basePath = `${this.settings.defaultFolder}/${this.sanitizePath(project.name)}/Components`;
 
+    // Filter components
+    const filteredComponents = components.filter(c => !this.shouldExclude(c.name));
+    const skippedCount = components.length - filteredComponents.length;
+
     // Create index
     let indexContent = `# Components\n\n`;
-    indexContent += `Total: ${components.length}\n\n`;
+    indexContent += `Total: ${filteredComponents.length}`;
+    if (skippedCount > 0) {
+      indexContent += ` (${skippedCount} excluded by filters)`;
+    }
+    indexContent += `\n\n`;
 
-    for (const component of components) {
+    for (const component of filteredComponents) {
       const fullComponent = await this.zeplinClient.getComponent(project.id, component.id);
       const fileName = `${this.sanitizePath(fullComponent.name)}.md`;
       const filePath = `${basePath}/${fileName}`;
@@ -126,7 +140,7 @@ export class ObsidianSynchronizer {
 
     await this.writeFile(`${basePath}.md`, indexContent);
 
-    logger.info(`Synced ${components.length} components`);
+    logger.info(`Synced ${filteredComponents.length} components${skippedCount > 0 ? ` (excluded ${skippedCount})` : ''}`);
   }
 
   /**
@@ -138,11 +152,19 @@ export class ObsidianSynchronizer {
     const screens = await this.zeplinClient.getScreens(project.id);
     const basePath = `${this.settings.defaultFolder}/${this.sanitizePath(project.name)}/Screens`;
 
+    // Filter screens
+    const filteredScreens = screens.filter(s => !this.shouldExclude(s.name));
+    const skippedCount = screens.length - filteredScreens.length;
+
     // Create index
     let indexContent = `# Screens\n\n`;
-    indexContent += `Total: ${screens.length}\n\n`;
+    indexContent += `Total: ${filteredScreens.length}`;
+    if (skippedCount > 0) {
+      indexContent += ` (${skippedCount} excluded by filters)`;
+    }
+    indexContent += `\n\n`;
 
-    for (const screen of screens) {
+    for (const screen of filteredScreens) {
       const fullScreen = await this.zeplinClient.getScreen(project.id, screen.id);
       const fileName = `${this.sanitizePath(fullScreen.name)}.md`;
       const filePath = `${basePath}/${fileName}`;
@@ -155,7 +177,7 @@ export class ObsidianSynchronizer {
 
     await this.writeFile(`${basePath}.md`, indexContent);
 
-    logger.info(`Synced ${screens.length} screens`);
+    logger.info(`Synced ${filteredScreens.length} screens${skippedCount > 0 ? ` (excluded ${skippedCount})` : ''}`);
   }
 
   /**
@@ -204,7 +226,7 @@ export class ObsidianSynchronizer {
     project: ZeplinProject,
     component: ZeplinComponent
   ): Promise<string> {
-    let content = `# ${component.name}\n\n`;
+    let content = '';
 
     // Metadata
     content += `**Type:** Component\n`;
@@ -237,7 +259,7 @@ export class ObsidianSynchronizer {
     project: ZeplinProject,
     screen: ZeplinScreen
   ): Promise<string> {
-    let content = `# ${screen.name}\n\n`;
+    let content = '';
 
     // Metadata
     content += `**Type:** Screen\n`;
@@ -328,5 +350,32 @@ export class ObsidianSynchronizer {
       await this.app.vault.create(path, content);
       logger.info(`Created file: ${path}`);
     }
+  }
+
+  /**
+   * Check if a name should be excluded based on glob patterns
+   */
+  private shouldExclude(name: string): boolean {
+    if (this.excludePatterns.length === 0) {
+      return false;
+    }
+
+    return this.excludePatterns.some(pattern => {
+      const regex = this.globToRegex(pattern);
+      return regex.test(name);
+    });
+  }
+
+  /**
+   * Convert glob pattern to regex
+   */
+  private globToRegex(pattern: string): RegExp {
+    // Escape special regex characters except * and ?
+    let regexPattern = pattern
+      .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+      .replace(/\*/g, '.*')
+      .replace(/\?/g, '.');
+
+    return new RegExp(`^${regexPattern}$`, 'i');
   }
 }

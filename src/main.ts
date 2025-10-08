@@ -13,6 +13,7 @@ interface ZeplinSyncSettings {
   defaultFolder: string;
   imageStorage: 'inline' | 'assets';
   templateFormat: 'detailed' | 'minimal';
+  excludePatterns: string;
 }
 
 const DEFAULT_SETTINGS: ZeplinSyncSettings = {
@@ -20,6 +21,7 @@ const DEFAULT_SETTINGS: ZeplinSyncSettings = {
   defaultFolder: 'Zeplin',
   imageStorage: 'assets',
   templateFormat: 'detailed',
+  excludePatterns: '',
 };
 
 export default class ZeplinSyncPlugin extends Plugin {
@@ -283,6 +285,17 @@ class ZeplinSyncSettingTab extends PluginSettingTab {
         .setValue(this.plugin.settings.templateFormat)
         .onChange(async (value: 'detailed' | 'minimal') => {
           this.plugin.settings.templateFormat = value;
+          await this.plugin.saveSettings();
+        }));
+
+    new Setting(containerEl)
+      .setName('Exclude Patterns')
+      .setDesc('Glob patterns to skip screens and components (one per line, e.g., *-old, test-*, *-deprecated)')
+      .addTextArea(text => text
+        .setPlaceholder('*-old\ntest-*\n*-deprecated')
+        .setValue(this.plugin.settings.excludePatterns)
+        .onChange(async (value) => {
+          this.plugin.settings.excludePatterns = value;
           await this.plugin.saveSettings();
         }));
   }
