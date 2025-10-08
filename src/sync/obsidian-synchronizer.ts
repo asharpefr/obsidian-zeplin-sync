@@ -3,7 +3,7 @@
  * Orchestrates the sync from Zeplin to Obsidian markdown files
  */
 
-import { App, TFile, TFolder, Notice } from 'obsidian';
+import { App, TFile } from 'obsidian';
 import { ZeplinClient } from '../zeplin/client';
 import { logger } from '../utils/logger';
 import type { ZeplinProject, ZeplinComponent, ZeplinScreen } from '../types/zeplin';
@@ -21,7 +21,6 @@ export class ObsidianSynchronizer {
   private app: App;
   private zeplinClient: ZeplinClient;
   private settings: ObsidianSettings;
-  private projectName: string = '';
   private excludePatterns: string[] = [];
 
   constructor(app: App, zeplinClient: ZeplinClient, settings: ObsidianSettings) {
@@ -43,7 +42,6 @@ export class ObsidianSynchronizer {
 
       // Fetch project details
       const project = await this.zeplinClient.getProject(projectId);
-      this.projectName = project.name;
       logger.info(`Syncing project: ${project.name}`);
 
       // Create project folder structure

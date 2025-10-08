@@ -275,8 +275,8 @@ class ZeplinSyncSettingTab extends PluginSettingTab {
         .addOption('assets', 'Assets (use URLs)')
         .addOption('inline', 'Inline (embed as base64)')
         .setValue(this.plugin.settings.imageStorage)
-        .onChange(async (value: 'inline' | 'assets') => {
-          this.plugin.settings.imageStorage = value;
+        .onChange(async (value) => {
+          this.plugin.settings.imageStorage = value as 'inline' | 'assets';
           await this.plugin.saveSettings();
         }));
 
@@ -287,8 +287,8 @@ class ZeplinSyncSettingTab extends PluginSettingTab {
         .addOption('detailed', 'Detailed')
         .addOption('minimal', 'Minimal')
         .setValue(this.plugin.settings.templateFormat)
-        .onChange(async (value: 'detailed' | 'minimal') => {
-          this.plugin.settings.templateFormat = value;
+        .onChange(async (value) => {
+          this.plugin.settings.templateFormat = value as 'detailed' | 'minimal';
           await this.plugin.saveSettings();
         }));
 
