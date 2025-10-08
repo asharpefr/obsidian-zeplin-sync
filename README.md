@@ -11,6 +11,7 @@ Sync your Zeplin design projects, components, and screens directly into Obsidian
 - ✅ **Visual Previews** - Display design images in Obsidian
 - ✅ **Auto-linking** - Navigate between screens and components easily
 - ✅ **Metadata** - Links back to Zeplin, tags, sections, descriptions
+- ✅ **Filtering** - Exclude screens and components using glob patterns
 
 ## Installation
 
@@ -72,7 +73,6 @@ Zeplin/
 ### What Gets Synced
 
 **For Each Screen:**
-- Name (as page title)
 - Description
 - Tags
 - Section
@@ -80,7 +80,6 @@ Zeplin/
 - Link to view in Zeplin
 
 **For Each Component:**
-- Name (as page title)
 - Description
 - Section
 - Visual preview image
@@ -100,6 +99,10 @@ Zeplin/
 - **Template Format** - Detail level:
   - `detailed` - Full information
   - `minimal` - Compact view
+- **Exclude Patterns** - Glob patterns to skip screens and components (one per line):
+  - Example: `*-old` - excludes items ending with "-old"
+  - Example: `test-*` - excludes items starting with "test-"
+  - Example: `*-deprecated` - excludes items ending with "-deprecated"
 
 ## Development
 
